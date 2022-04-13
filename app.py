@@ -22,9 +22,18 @@ async def remove(ws):
   if ws.id and members.get(ws.id):
     del members[ws.id]
 
+async def pass_message(m, ws):
+  if not (ws.id and members.get(ws.id)):
+    return None
+  if not (m.get("to") and members.get(m["to"])):
+    return None  
+  target_ws = members.get(m["to"])["ws"]
+  await target_ws.send_str(json.dumps({"method": "message", "ref": m.get("ref"), "from": ws.id, "message": m.get("message")}))
+
 methods = {
   "register": register,
-  "member_list": member_list
+  "member_list": member_list,
+  "pass_message": pass_message,
 }
 
 async def ws_handler(request):
